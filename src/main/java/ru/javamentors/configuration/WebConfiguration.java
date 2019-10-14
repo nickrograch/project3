@@ -11,7 +11,7 @@ import org.springframework.web.servlet.view.JstlView;
 @Configuration
 @EnableWebMvc
 @ComponentScan(basePackages = "ru.javamentors")
-public class HelloWorldConfiguration {
+public class WebConfiguration {
 
     @Bean
     public ViewResolver viewResolver() {
