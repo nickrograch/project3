@@ -19,7 +19,7 @@ import java.util.Properties;
 @Configuration
 @EnableTransactionManagement
 @PropertySource("classpath:database.properties")
-@EnableJpaRepositories("ru.javamentors.repository")
+@EnableJpaRepositories("ru.javamentors.DAO")
 @ComponentScan("ru.javamentors")
 public class HibernateConfig {
 
