@@ -1,4 +1,5 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
@@ -7,11 +8,10 @@
 <body>
 
 <h1>БД пользователей</h1><br/>
-
-<form method='post'>
+<form:form method="post">
     <p><b>Выберите действие c пользователем</b></p>
-    <p><input name="action" type="radio" value="add" checked> Добавить
-        <input name="action" type="radio" value="edit"> Изменить</p>
+    <p><input type="submit" value="Добавить" name="add" formaction="/add">
+    <input type="submit" value="Изменить" name="edit" formaction="/edit"></p>
 
     <table width='100%' cellspacing='0' cellpadding='4' items="${requestScope.userEdit}" var="userEdit">
         <tr>
@@ -27,9 +27,8 @@
             <td><input type='text' name='role' maxlength='50' size='20' value=${userEdit.role}></td>
         </tr>
     </table>
-    <input type='submit' value='Подтвердить' name='Ok'><br>
     <input type="hidden" name="id" value="${userEdit.id}">
-</form>
+</form:form>
 
 
 <table table border="1" cellspacing="0" cellpadding="2">
@@ -48,6 +47,9 @@
             <td>
                 <form method="get">
                     <input type="submit" value="Изменить" name="edit">
+                    <input type="hidden" name="id" value="${user.id}">
+                </form>
+                <form method="post" action="/delete">
                     <input type="submit" value="Удалить" name="delete">
                     <input type="hidden" name="id" value="${user.id}">
                 </form>

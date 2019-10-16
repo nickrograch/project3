@@ -20,13 +20,7 @@ public class UserController {
     UserService userService;
 
     @GetMapping("/userlist")
-    public String userList(@ModelAttribute("edit") String edit, @ModelAttribute("delete") String delete,
-                           @ModelAttribute("user") User user, Model model){
-
-        if (! delete.equals("")){
-            User getUser = userService.getUserById(user.getId());
-            userService.deleteUser(getUser);
-        }
+    public String userList(@ModelAttribute("edit") String edit, @ModelAttribute("user") User user, Model model){
         if (! edit.equals("")){
             User getUser = userService.getUserById(user.getId());
             model.addAttribute("userEdit", getUser);
@@ -36,21 +30,28 @@ public class UserController {
         return "userList";
     }
 
-    @PostMapping("/userlist")
-    public String userList(@ModelAttribute("user") User user, @RequestParam("name") String name,
-                           @RequestParam("password") String password, @RequestParam("role") String role,
-                           @RequestParam("action") String action, Model model){
 
-        if (!action.equals("")){
-            if (action.equals("add")){
-                User newUser = new User(name, password, role);
-                userService.addUser(newUser);
-            }
-            if (action.equals("edit")){
-                User editUser = new User(user.getId(), name, password, role);
-                userService.editUser(editUser);
-            }
-        }
+
+    @PostMapping("/add")
+    public String add(@ModelAttribute("user") User user, @RequestParam("name") String name,
+                      @RequestParam("password") String password, @RequestParam("role") String role){
+        User newUser = new User(name, password, role);
+        userService.addUser(newUser);
+        return "redirect:/userlist";
+    }
+
+    @PostMapping("/edit")
+    public String edit(@ModelAttribute("user") User user, @RequestParam("name") String name,
+                       @RequestParam("password") String password, @RequestParam("role") String role){
+        User editUser = new User(user.getId(), name, password, role);
+        userService.editUser(editUser);
+        return "redirect:/userlist";
+    }
+
+    @PostMapping("/delete")
+    public String delete(@ModelAttribute("user") User user){
+        User getUser = userService.getUserById(user.getId());
+        userService.deleteUser(getUser);
         return "redirect:/userlist";
     }
 
