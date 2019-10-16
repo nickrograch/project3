@@ -49,7 +49,6 @@
                 <form method="get">
                     <input type="submit" value="Изменить" name="edit">
                     <input type="submit" value="Удалить" name="delete">
-                    <input type="hidden" name="name" value="${user.name}">
                     <input type="hidden" name="id" value="${user.id}">
                 </form>
             </td>

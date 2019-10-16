@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.javamentors.DAO.UserDAO;
 import ru.javamentors.entity.User;
+import ru.javamentors.repository.UserRepository;
 import ru.javamentors.util.ExistException;
 
 import java.util.List;
@@ -12,47 +13,46 @@ import java.util.List;
 @Service
 public class UserServiceImpl implements UserService{
 
+//    @Autowired
+//    private UserDAO userDAO;
+
     @Autowired
-    private UserDAO userDAO;
+    private UserRepository userRepository;
 
     @Override
-    @Transactional
     public List<User> getUsers() {
-        return userDAO.getUsers();
+        return userRepository.findAll();
     }
 
     @Override
-    @Transactional
     public void addUser(User user) {
 
-        User checkUser = userDAO.getUser(user.getName());
+        User checkUser = getUser(user.getName());
         if (checkUser != null){
             throw new ExistException("User is already exist");
         }
         else{
-            userDAO.addUser(user);
+            userRepository.saveAndFlush(user);
         }
     }
 
     @Override
-    @Transactional
     public User getUser(String name) {
-        return userDAO.getUser(name);
+        return userRepository.findByName(name);
     }
 
     @Override
-    @Transactional
     public void deleteUser(User user) {
-        userDAO.deleteUser(user);
+        userRepository.delete(user);
     }
 
     @Override
     public void editUser(User user) {
-        userDAO.editUser(user);
+        userRepository.saveAndFlush(user);
     }
 
     @Override
     public User getUserById(long id) {
-        return userDAO.getUserById(id);
+        return userRepository.getById(id);
     }
 }

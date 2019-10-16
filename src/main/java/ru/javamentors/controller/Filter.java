@@ -2,6 +2,7 @@ package ru.javamentors.controller;
 
 
 
+import org.springframework.web.util.NestedServletException;
 import ru.javamentors.entity.User;
 
 import javax.servlet.*;
@@ -32,6 +33,8 @@ public class Filter implements javax.servlet.Filter {
             request.getRequestDispatcher("/WEB-INF/views/accessDenied.jsp").forward(request, response);
         }
     }
+
+
 
     @Override
     public void destroy() {

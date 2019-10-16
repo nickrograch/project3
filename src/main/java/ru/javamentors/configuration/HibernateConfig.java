@@ -1,34 +1,39 @@
 package ru.javamentors.configuration;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
-import org.springframework.orm.hibernate5.HibernateTransactionManager;
-import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
+import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import javax.annotation.Resource;
 import javax.sql.DataSource;
 import java.util.Properties;
 
 @Configuration
-@PropertySource("classpath:database.properties")
 @EnableTransactionManagement
+@PropertySource("classpath:database.properties")
+@EnableJpaRepositories("ru.javamentors.repository")
+@ComponentScan("ru.javamentors")
 public class HibernateConfig {
 
-    @Autowired
+    @Resource
     private Environment environment;
 
-    @Bean
-    public LocalSessionFactoryBean sessionFactory() {
-        LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
-        sessionFactory.setDataSource(dataSource());
-        sessionFactory.setPackagesToScan(packagesToScan());
-        sessionFactory.setHibernateProperties(hibernateProperties());
-        return sessionFactory;
-    }
+//    @Bean
+//    public LocalSessionFactoryBean sessionFactory() {
+//        LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
+//        sessionFactory.setDataSource(dataSource());
+//        sessionFactory.setPackagesToScan(packagesToScan());
+//        sessionFactory.setHibernateProperties(hibernateProperties());
+//        return sessionFactory;
+//    }
 
     @Bean
     public DataSource dataSource() {
@@ -38,6 +43,18 @@ public class HibernateConfig {
         dataSource.setUsername(environment.getRequiredProperty("jdbc.username"));
         dataSource.setPassword(environment.getRequiredProperty("jdbc.password"));
         return dataSource;
+    }
+
+    @Bean
+    public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
+        LocalContainerEntityManagerFactoryBean entityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
+        entityManagerFactoryBean.setDataSource(dataSource());
+        entityManagerFactoryBean.setPersistenceProviderClass(HibernatePersistenceProvider.class);
+        entityManagerFactoryBean.setPackagesToScan(environment.getRequiredProperty("db.entitymanager.packages.to.scan"));
+
+        entityManagerFactoryBean.setJpaProperties(hibernateProperties());
+
+        return entityManagerFactoryBean;
     }
 
     private Properties hibernateProperties() {
@@ -50,15 +67,15 @@ public class HibernateConfig {
     }
 
     @Bean
-    public HibernateTransactionManager getTransactionManager() {
-        HibernateTransactionManager transactionManager = new HibernateTransactionManager();
-        transactionManager.setSessionFactory(sessionFactory().getObject());
+    public JpaTransactionManager transactionManager() {
+        JpaTransactionManager transactionManager = new JpaTransactionManager();
+        transactionManager.setEntityManagerFactory(entityManagerFactory().getObject());
+
         return transactionManager;
     }
 
-    protected String[] packagesToScan() {
-        return new String[]{
-                "ru.javamentors.entity"
-        };
-    }
+    protected String packagesToScan() {
+        return new String("ru.javamentors.entity");
+    };
 }
+

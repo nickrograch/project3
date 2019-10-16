@@ -4,10 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ru.javamentors.entity.User;
 import ru.javamentors.service.UserService;
@@ -24,14 +21,14 @@ public class UserController {
 
     @GetMapping("/userlist")
     public String userList(@ModelAttribute("edit") String edit, @ModelAttribute("delete") String delete,
-                           @ModelAttribute("name") String name, @ModelAttribute("user") User user, Model model){
+                           @ModelAttribute("user") User user, Model model){
 
         if (! delete.equals("")){
-            User getUser = userService.getUser(name);
+            User getUser = userService.getUserById(user.getId());
             userService.deleteUser(getUser);
         }
         if (! edit.equals("")){
-            User getUser = userService.getUser(name);
+            User getUser = userService.getUserById(user.getId());
             model.addAttribute("userEdit", getUser);
         }
         List<User> users = userService.getUsers();
@@ -40,17 +37,16 @@ public class UserController {
     }
 
     @PostMapping("/userlist")
-    public String userList(@ModelAttribute("id") long id, @ModelAttribute("name") String name,
-                           @ModelAttribute("password") String password, @ModelAttribute("role") String role,
-                           @ModelAttribute("action") String action, Model model){
+    public String userList(@ModelAttribute("user") User user, @RequestParam("name") String name,
+                           @RequestParam("password") String password, @RequestParam("role") String role,
+                           @RequestParam("action") String action, Model model){
 
         if (!action.equals("")){
             if (action.equals("add")){
-                User user = new User(name, password, role);
-                userService.addUser(user);
+                User newUser = new User(name, password, role);
+                userService.addUser(newUser);
             }
             if (action.equals("edit")){
-                User user = userService.getUserById(id);
                 User editUser = new User(user.getId(), name, password, role);
                 userService.editUser(editUser);
             }
