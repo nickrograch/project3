@@ -22,10 +22,6 @@
             <td align='right'>Пароль</td>
             <td><input type='text' name="password" maxlength='50' size='20' value=${userEdit.password}></td>
         </tr>
-        <tr>
-            <td align='right'>Роль</td>
-            <td><input type='text' name='role' maxlength='50' size='20' value=${userEdit.role}></td>
-        </tr>
     </table>
     <input type="hidden" name="id" value="${userEdit.id}">
 </form:form>
@@ -38,23 +34,25 @@
         <th>Пароль</th>
         <th>Роль</th>
     </tr>
-    <c:forEach items="${requestScope.users}" var="user">
-        <tr>
-            <td> ${user.id} </td>
-            <td> ${user.name} </td>
-            <td> ${user.password} </td>
-            <td> ${user.role} </td>
-            <td>
-                <form method="get">
-                    <input type="submit" value="Изменить" name="edit">
-                    <input type="hidden" name="id" value="${user.id}">
-                </form>
-                <form method="post" action="/delete">
-                    <input type="submit" value="Удалить" name="delete">
-                    <input type="hidden" name="id" value="${user.id}">
-                </form>
-            </td>
-        </tr>
+    <c:forEach items="${requestScope.users}" var="appUser">
+
+            <tr>
+                <td> ${appUser.id} </td>
+                <td> ${appUser.name} </td>
+                <td> ${appUser.password} </td>
+                <td> ${appUser.roles.toString()} </td>
+                <td>
+                    <form method="get">
+                        <input type="submit" value="Изменить" name="edit">
+                        <input type="hidden" name="id" value="${appUser.id}">
+                    </form>
+                    <form method="post" action="/delete">
+                        <input type="submit" value="Удалить" name="delete">
+                        <input type="hidden" name="id" value="${appUser.id}">
+                    </form>
+                </td>
+            </tr>
+
     </c:forEach>
 </table>
 

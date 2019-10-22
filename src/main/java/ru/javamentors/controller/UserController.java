@@ -2,14 +2,18 @@ package ru.javamentors.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import ru.javamentors.entity.User;
+import ru.javamentors.entity.AppUser;
+import ru.javamentors.entity.Role;
+import ru.javamentors.repository.UserRepository;
 import ru.javamentors.service.UserService;
 
 import javax.servlet.http.HttpSession;
+import java.security.Principal;
 import java.util.List;
 
 @Controller
@@ -20,38 +24,44 @@ public class UserController {
     UserService userService;
 
     @GetMapping("/userlist")
-    public String userList(@ModelAttribute("edit") String edit, @ModelAttribute("user") User user, Model model){
+    public String userList(@ModelAttribute("edit") String edit, @ModelAttribute("user") AppUser appUser, Model model){
         if (! edit.equals("")){
-            User getUser = userService.getUserById(user.getId());
-            model.addAttribute("userEdit", getUser);
+            AppUser getAppUser = userService.getUserById(appUser.getId());
+            model.addAttribute("userEdit", getAppUser);
         }
-        List<User> users = userService.getUsers();
-        model.addAttribute("users", users);
+        List<AppUser> appUsers = userService.getUsers();
+        model.addAttribute("users", appUsers);
         return "userList";
     }
 
 
 
     @PostMapping("/add")
-    public String add(@ModelAttribute("user") User user, @RequestParam("name") String name,
-                      @RequestParam("password") String password, @RequestParam("role") String role){
-        User newUser = new User(name, password, role);
-        userService.addUser(newUser);
+    public String add(@ModelAttribute("user") AppUser appUser, @RequestParam("name") String name,
+                      @RequestParam("password") String password){
+        AppUser newAppUser = new AppUser(name, password);
+        userService.addUser(newAppUser);
         return "redirect:/userlist";
     }
 
     @PostMapping("/edit")
-    public String edit(@ModelAttribute("user") User user, @RequestParam("name") String name,
-                       @RequestParam("password") String password, @RequestParam("role") String role){
-        User editUser = new User(user.getId(), name, password, role);
-        userService.editUser(editUser);
+    public String edit(@ModelAttribute("user") AppUser appUser, @RequestParam("name") String name,
+                       @RequestParam("password") String password){
+        AppUser oldUser = userService.getUserById(appUser.getId());
+        AppUser editAppUser = new AppUser(appUser.getId(), name, password);
+        for (Role role : oldUser.getRoles()) {
+            editAppUser.setRoles(role);
+        }
+        userService.editUser(editAppUser);
         return "redirect:/userlist";
     }
-
+    @Transactional
     @PostMapping("/delete")
-    public String delete(@ModelAttribute("user") User user){
-        User getUser = userService.getUserById(user.getId());
-        userService.deleteUser(getUser);
+    public String delete(@ModelAttribute("user") AppUser appUser){
+        AppUser getAppUser = userService.getUserById(appUser.getId());
+        for (Role role: getAppUser.getRoles())
+            role.getAppUsers().remove(getAppUser);
+        userService.deleteUser(getAppUser);
         return "redirect:/userlist";
     }
 
@@ -66,23 +76,27 @@ public class UserController {
     }
 
     @PostMapping("/registration")
-    public String register(@ModelAttribute("user") User user){
-        user.setRole("user");
-        userService.addUser(user);
+    public String register(@ModelAttribute("user") AppUser appUser){
+        userService.addUser(appUser);
         return "redirect:/login";
     }
 
     @PostMapping("/login")
-    public String loginUser(@ModelAttribute("user") User user, RedirectAttributes redirectAttributes){
-        User loginedUser = userService.getUser(user.getName());
-        redirectAttributes.addFlashAttribute("user", loginedUser);
+    public String loginUser(@ModelAttribute("user") AppUser appUser, RedirectAttributes redirectAttributes){
+        AppUser loginedAppUser = userService.getUser(appUser.getName());
+        redirectAttributes.addFlashAttribute("user", loginedAppUser);
         return "redirect:/hello";
     }
 
     @GetMapping("/hello")
-    public String hello(@ModelAttribute("user") User user, ModelMap model, HttpSession httpSession){
-        model.get("user");
-        httpSession.setAttribute("user", user);
+    public String hello(Principal principal, Model model){
+        AppUser appUser = (AppUser) userService.getUser(principal.getName());
+        model.addAttribute("user", appUser);
         return "hello";
+    }
+
+    @GetMapping("/access_denied")
+    public String accessDenied(){
+        return "accessDenied";
     }
 }

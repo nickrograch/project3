@@ -19,21 +19,13 @@ import java.util.Properties;
 @Configuration
 @EnableTransactionManagement
 @PropertySource("classpath:database.properties")
-@EnableJpaRepositories("ru.javamentors.DAO")
+@EnableJpaRepositories("ru.javamentors.repository")
 @ComponentScan("ru.javamentors")
 public class HibernateConfig {
 
     @Resource
     private Environment environment;
 
-//    @Bean
-//    public LocalSessionFactoryBean sessionFactory() {
-//        LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
-//        sessionFactory.setDataSource(dataSource());
-//        sessionFactory.setPackagesToScan(packagesToScan());
-//        sessionFactory.setHibernateProperties(hibernateProperties());
-//        return sessionFactory;
-//    }
 
     @Bean
     public DataSource dataSource() {
@@ -74,8 +66,5 @@ public class HibernateConfig {
         return transactionManager;
     }
 
-    protected String packagesToScan() {
-        return new String("ru.javamentors.entity");
-    };
 }
 

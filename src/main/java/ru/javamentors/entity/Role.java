@@ -4,19 +4,46 @@ import javax.persistence.*;
 import java.util.Set;
 
 @Entity
-@Table(name = "roles")
+@Table(name="role")
 public class Role {
 
     @Id
-    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name="role_id")
+    private long id;
 
-    @Column(name = "role")
+    @Column(name="role")
     private String role;
 
     @ManyToMany(mappedBy = "roles")
-    Set<User> user;
+    private Set<AppUser> appUsers;
+
+
+
+    public Set<AppUser> getAppUsers() {
+        return appUsers;
+    }
+
+    public void setUserRoles(Set<AppUser> appUserRoles) {
+        this.appUsers = appUserRoles;
+    }
+
+    @Override
+    public String toString() {
+        return role;
+    }
+
+
+    public Role(){
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
 
     public String getRole() {
         return role;
@@ -24,21 +51,5 @@ public class Role {
 
     public void setRole(String role) {
         this.role = role;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    @Override
-    public String toString() {
-        return "Role{" +
-                "id=" + id +
-                ", role='" + role + '\'' +
-                '}';
     }
 }

@@ -1,20 +1,23 @@
 package ru.javamentors.service;
 
-import ru.javamentors.entity.User;
+import org.springframework.stereotype.Service;
+import ru.javamentors.entity.AppUser;
 
 import java.util.List;
 
+@Service
 public interface UserService {
 
-    List<User> getUsers();
+    List<AppUser> getUsers();
 
-    void addUser(User user);
+    void addUser(AppUser appUser);
 
-    User getUser (String name);
+    AppUser getUser (String name);
 
-    void deleteUser(User user);
+    void deleteUser(AppUser appUser);
 
-    void editUser(User user);
+    void editUser(AppUser appUser);
 
-    User getUserById(long id);
+    AppUser getUserById(long id);
+
 }

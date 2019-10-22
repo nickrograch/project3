@@ -1,13 +1,18 @@
 package ru.javamentors.entity;
 
+import org.springframework.security.core.CredentialsContainer;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import javax.persistence.*;
+import java.util.*;
 
 @Entity
-@Table(name = "users")
-public class User {
+@Table(name = "user")
+public class AppUser {
 
     @Id
-    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -17,24 +22,28 @@ public class User {
     @Column(name = "password")
     private String password;
 
-    @Column(name = "role")
-    private String role;
+    @ManyToMany(cascade=CascadeType.ALL, fetch= FetchType.EAGER)
+    @JoinTable(name="user_role", joinColumns=@JoinColumn(name="user_id"), inverseJoinColumns=@JoinColumn(name="role_id"))
+    private Set<Role> roles = new HashSet<>();
 
-    public User() {
+
+
+
+    public AppUser() {
     }
 
-    public User(String name, String password, String role) {
+
+    public AppUser(String name, String password) {
         this.name = name;
         this.password = password;
-        this.role = role;
     }
 
-    public User(long id, String name, String password, String role){
+    public AppUser(long id, String name, String password){
         this.id = id;
         this.name = name;
         this.password = password;
-        this.role = role;
     }
+
 
     public Long getId() {
         return id;
@@ -60,18 +69,12 @@ public class User {
         this.password = password;
     }
 
-    public String getRole() {
-        return role;
+    public Set<Role> getRoles() {
+        return roles;
     }
 
-    public void setRole(String role) {
-        this.role = role;
-    }
-
-    public User(String name, String password) {
-        this.name = name;
-        this.password = password;
-        this.role = "user";
+    public void setRoles(Role role) {
+        this.roles.add(role);
     }
 
     @Override
@@ -80,7 +83,7 @@ public class User {
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", password='" + password + '\'' +
-                ", role='" + role + '\'' +
-                '}';
+                ", role='" + '}';
     }
+
 }
