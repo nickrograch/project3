@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import ru.javamentors.service.UserDetailsServiceImpl;
 
 
@@ -26,13 +27,15 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    @Autowired
-    private DataSource dataSource;
-
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(userDetailsService).passwordEncoder(bCryptPasswordEncoder);
 }
+
+    @Bean
+    public AuthenticationSuccessHandler myAuthenticationSuccessHandler(){
+        return new UrlAuthenticationSuccessHandler();
+    }
 
         @Override
         protected void configure(HttpSecurity http) throws Exception{
@@ -41,8 +44,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                     .antMatchers("/registration").permitAll()
                     .antMatchers("/userlist", "/userlist/**").hasAuthority("ADMIN").anyRequest()
                     .authenticated().and().csrf().disable().formLogin()
-                    .loginPage("/login").failureUrl("/login?error=true")
-                    .defaultSuccessUrl("/hello")
+                    .loginPage("/login").loginProcessingUrl("/login").failureUrl("/login?error=true")
+                    .successHandler(myAuthenticationSuccessHandler())
                     .usernameParameter("name")
                     .passwordParameter("password")
                     .and().exceptionHandling()

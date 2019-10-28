@@ -1,0 +1,39 @@
+package ru.javamentors.configuration;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.web.DefaultRedirectStrategy;
+import org.springframework.security.web.RedirectStrategy;
+import org.springframework.security.web.WebAttributes;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import ru.javamentors.entity.AppUser;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.util.Collection;
+
+public class UrlAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
+
+    private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
+
+    @Override
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
+                                        Authentication authentication) throws IOException, ServletException {
+        HttpSession session = request.getSession();
+        AppUser authUser = (AppUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        session.setAttribute("username", authUser.getUsername());
+        session.setAttribute("authorities", authentication.getAuthorities());
+
+        //set our response to OK status
+        response.setStatus(HttpServletResponse.SC_OK);
+
+        //since we have created our custom success handler, its up to us to where
+        //we will redirect the user after successfully login
+        response.sendRedirect("hello");
+    }
+}

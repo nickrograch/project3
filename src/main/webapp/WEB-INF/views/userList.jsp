@@ -42,7 +42,7 @@
                 <td> ${appUser.password} </td>
                 <td> ${appUser.roles.toString()} </td>
                 <td>
-                    <form method="get">
+                    <form method="get" action="/userlist/edit">
                         <input type="submit" value="Изменить" name="edit">
                         <input type="hidden" name="id" value="${appUser.id}">
                     </form>

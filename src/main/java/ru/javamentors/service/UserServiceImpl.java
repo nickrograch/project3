@@ -5,13 +5,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.javamentors.entity.AppUser;
+import ru.javamentors.entity.Role;
+import ru.javamentors.repository.RoleRepository;
 import ru.javamentors.repository.UserRepository;
 import ru.javamentors.util.ExistException;
 
 import java.util.List;
-
-import ru.javamentors.entity.Role;
-import ru.javamentors.repository.RoleRepository;
 
 @Service
 public class UserServiceImpl implements UserService{
@@ -20,7 +19,8 @@ public class UserServiceImpl implements UserService{
     private UserRepository userRepository;
 
     @Autowired
-    private RoleRepository roleRespository;
+    private RoleRepository roleRepository;
+
 
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -30,20 +30,18 @@ public class UserServiceImpl implements UserService{
         return userRepository.findAll();
     }
 
+
     @Override
-    @Transactional
     public void addUser(AppUser appUser) {
 
-        AppUser checkAppUser = getUser(appUser.getName());
-        if (checkAppUser != null){
-            throw new ExistException("User is already exist");
-        }
-        else{
+//        AppUser checkAppUser = getUser(appUser.getName());
+//        if (checkAppUser != null){
+//            throw new ExistException("User is already exist");
+//        }
+//        else{
             appUser.setPassword(bCryptPasswordEncoder.encode(appUser.getPassword()));
-            Role userRole = roleRespository.findByRole("USER");
-            appUser.setRoles(userRole);
             userRepository.save(appUser);
-        }
+      // }
     }
 
 
