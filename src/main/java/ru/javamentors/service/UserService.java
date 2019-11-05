@@ -12,8 +12,6 @@ public interface UserService {
 
     void addUser(AppUser appUser);
 
-    AppUser getUser (String name);
-
     void deleteUser(AppUser appUser);
 
     void editUser(AppUser appUser);

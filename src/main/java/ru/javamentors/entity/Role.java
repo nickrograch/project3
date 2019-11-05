@@ -1,6 +1,5 @@
 package ru.javamentors.entity;
 
-import org.hibernate.annotations.Proxy;
 import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.*;
@@ -57,12 +56,16 @@ public class Role implements GrantedAuthority {
         return this.role;
     }
 
+    @PreRemove
+    private void removeRoleFromUser(){
+        for (AppUser appUser : appUsers){
+            appUser.getRoles().remove(this);
+        }
+    }
+
     @Override
     public String toString() {
-        return "Role{" +
-                "id=" + id +
-                ", role='" + role + '\'' +
-                '}';
+        return role ;
     }
 
     @Override

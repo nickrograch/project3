@@ -2,23 +2,16 @@ package ru.javamentors.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
-import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ru.javamentors.entity.AppUser;
 import ru.javamentors.entity.Role;
 import ru.javamentors.repository.RoleRepository;
-import ru.javamentors.repository.UserRepository;
 import ru.javamentors.service.UserService;
 
-import javax.servlet.http.HttpSession;
-import java.security.Principal;
 import java.util.List;
 
 @Controller
-//@SessionAttributes("user")
 public class UserController {
 
     @Autowired
@@ -27,59 +20,54 @@ public class UserController {
     @Autowired
     private RoleRepository roleRepository;
 
-
-    @GetMapping("/userlist/edit")
-    public String userListEdit( @ModelAttribute("user") AppUser appUser, Model model){
-        AppUser getAppUser = userService.getUserById(appUser.getId());
-        model.addAttribute("userEdit", getAppUser);
-        List<AppUser> appUsers = userService.getUsers();
-        model.addAttribute("users", appUsers);
-        return "userList";
-    }
-
     @GetMapping("/userlist")
-    public String userList(@ModelAttribute("edit") String edit, @ModelAttribute("user") AppUser appUser, Model model){
+    public String userList(@ModelAttribute("edit") String edit, @ModelAttribute("user") AppUser appUser, Model model) {
         List<AppUser> appUsers = userService.getUsers();
         model.addAttribute("users", appUsers);
         return "userList";
     }
 
+    @GetMapping("/add")
+    public String addPage() {
+        return "add";
+    }
 
     @PostMapping("/add")
-    public String add(@ModelAttribute("user") AppUser appUser){
-
-        AppUser newAppUser = new AppUser(appUser.getName(), appUser.getPassword());
-        Role role = new Role();
-        role.setId(2L);
-        role.setRole("USER");
-        newAppUser.getRoles().add(role);
+    public String add(@ModelAttribute("user") AppUser appUser, @RequestParam("role") String role) {
+        AppUser newAppUser = new AppUser(appUser.getName(), appUser.getPassword(), appUser.getEmail());
+        Role userRole = roleRepository.findByName(role);
+        newAppUser.getRoles().add(userRole);
         userService.addUser(newAppUser);
         return "redirect:/userlist";
     }
 
     @PostMapping("/edit")
-    public String edit(@ModelAttribute("user") AppUser appUser, @RequestParam("name") String name,
-                       @RequestParam("password") String password){
-        AppUser oldUser = userService.getUserById(appUser.getId());
-        AppUser editAppUser = new AppUser(appUser.getId(), name, password);
-        for (Role role : oldUser.getRoles()) {
-            editAppUser.getRoles().add(role);
+    public String edit(@RequestParam("id") long id, @RequestParam("name") String name, @RequestParam("role") String role,
+                       @RequestParam("password") String password, @RequestParam("email") String email) {
+        AppUser editAppUser = new AppUser(id, name, password, email);
+        Role userRole = roleRepository.findByName("USER");
+        Role adminRole = roleRepository.findByName("ADMIN");
+        if (role.contains("USER") && role.contains("ADMIN")) {
+            editAppUser.getRoles().add(userRole);
+            editAppUser.getRoles().add(adminRole);
+        } else if (role.contains("USER")) {
+            editAppUser.getRoles().add(userRole);
+        } else if (role.contains("ADMIN")) {
+            editAppUser.getRoles().add(adminRole);
         }
         userService.editUser(editAppUser);
         return "redirect:/userlist";
     }
-//@Transactional
+
     @PostMapping("/delete")
-    public String delete(@ModelAttribute("user") AppUser appUser){
+    public String delete(@ModelAttribute("user") AppUser appUser) {
         AppUser getAppUser = userService.getUserById(appUser.getId());
-        for (Role role: getAppUser.getRoles())
-           role.getAppUsers().remove(getAppUser);
         userService.deleteUser(getAppUser);
         return "redirect:/userlist";
     }
 
-    @GetMapping("/access_denied")
-    public String accessDenied(){
+    @GetMapping("/login/access_denied")
+    public String accessDenied() {
         return "accessDenied";
     }
 }

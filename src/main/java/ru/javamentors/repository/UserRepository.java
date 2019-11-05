@@ -22,8 +22,4 @@ public interface UserRepository extends JpaRepository<AppUser, Long> {
     @Query("from AppUser as b left join fetch b.roles ")
     List<AppUser> findAll();
 
-
-//    @Modifying
-//    @Query("update User u set u.name = ?1, u.password = ?2 where u.id = ?4")
-//    void update(String name, String password, long userId);
 }

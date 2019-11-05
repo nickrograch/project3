@@ -1,13 +1,9 @@
 package ru.javamentors.entity;
 
-import org.springframework.security.core.CredentialsContainer;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.util.Assert;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.util.*;
 
 @Entity
@@ -24,10 +20,13 @@ public class AppUser implements UserDetails {
     @Column(name = "password")
     private String password;
 
+    @Column(name = "email")
+    private String email;
+
     @ManyToMany (fetch = FetchType.LAZY)
     @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private Set<Role> roles = new HashSet<>();
+    private Set<Role> roles = new HashSet<Role>();
 
     public AppUser() {
 
@@ -48,15 +47,17 @@ public class AppUser implements UserDetails {
         return Objects.hash(id, name, password);
     }
 
-    public AppUser(String name, String password) {
+    public AppUser(String name, String password, String email) {
         this.name = name;
         this.password = password;
+        this.email = email;
     }
 
-    public AppUser(long id, String name, String password) {
+    public AppUser(long id, String name, String password, String email) {
         this.id = id;
         this.name = name;
         this.password = password;
+        this.email = email;
     }
 
     public Long getId() {
@@ -65,6 +66,14 @@ public class AppUser implements UserDetails {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getName() {
